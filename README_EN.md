@@ -2,6 +2,8 @@
 
 > A structured, reproducible multi-step workflow pattern for AI Agents.
 
+![CMB](ChickenMeatWithBone.png)
+
 [中文版本](README.md)
 
 ---

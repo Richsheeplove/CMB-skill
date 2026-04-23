@@ -2,6 +2,8 @@
 
 > **Chicken Meat with Bone** — 一种面向 AI Agent 的结构化、可复现的多步骤工作流模式。
 
+![CMB](ChickenMeatWithBone.png)
+
 [English Version](README_EN.md)
 
 ---
