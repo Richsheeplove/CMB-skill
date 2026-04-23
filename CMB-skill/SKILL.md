@@ -101,6 +101,7 @@ Prefer flat structures; nest only when grouping is semantically necessary.
 To find the skill's script path:
 ```bash
 find ~/.agent/skills/cmb-skill/scripts -name "*.py"
+find ~/.claude/skills/cmb-skill/scripts -name "*.py"
 ```
 
 ---
