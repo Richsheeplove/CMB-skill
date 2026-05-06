@@ -40,6 +40,29 @@ Bone 不是过程的副产品，而是步骤之间的正式约定。改变一块
 
 ---
 
+## 两种应用场景
+
+CMB 的 Meat/Bone 纪律可以同时落到两个层面：
+
+- **Process-CMB（过程域）**：约束 agent 的**推理过程**。Meat 是每一步 LLM 推理，Bone 是 `.cmb/<step_id>/output.json` 这种确定性 JSON 工件。
+- **Code-CMB（代码域）**：约束 agent 产出的**代码本身的结构**。Meat 是易变的实现（函数体、分支逻辑、glue 代码、prompt 文本），Bone 是源码中稳定的契约层（接口、类型、Schema、协议消息、纯函数边界、跨模块常量）。
+
+> **一句话判定**：**Bone 是那些"一改就会牵连别人"的东西，Meat 是那些"怎么改都不影响别人"的东西。**
+
+三条原则在两个域里的对应关系：
+
+| 原则 | Process-CMB | Code-CMB |
+|---|---|---|
+| **歧义先行** | 计划步骤前先解决所有阻塞性疑问 | **接口先行**：写实现之前先确定类型、签名、Schema、错误模型 |
+| **一步一事** | 一块 Meat 只做一件事 | **单一职责切片**：一个文件/函数只承担一个关注点；纯逻辑与 IO/副作用分离 |
+| **Bone 即契约** | 改 bone 的 schema 必须审视所有下游步骤 | **接口即契约**：改公共接口/类型/Schema 必须显式列出受影响的调用方并同步更新，绝不悄悄改 |
+
+默认推荐使用 **Hybrid Mode**：用 Process-CMB 拆解整个任务，凡是产出代码的步骤，在其 Meat 内部再套用 Code-CMB（必须包含一个"接口先行"的步骤）。
+
+详细规范见 `CMB-skill/references/cmb-workflow.md`（过程域）与 `CMB-skill/references/cmb-code-mode.md`（代码域）。
+
+---
+
 ## License
 
 [LICENSE](LICENSE)

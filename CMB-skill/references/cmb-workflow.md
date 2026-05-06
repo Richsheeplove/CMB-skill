@@ -2,6 +2,13 @@
 
 CMB (Chicken Meat with Bone / 骨肉相连) is a structured execution pattern for reproducible, chainable agent workflows.
 
+CMB applies to **two scenarios** that share the same Meat/Bone discipline:
+
+- **Process-CMB** (this document): constrains the agent's *reasoning workflow*. Bones are JSON files in `.cmb/`.
+- **Code-CMB** (see [cmb-code-mode.md](cmb-code-mode.md)): constrains the *structure of code* the agent produces. Bones are stable contracts in source (interfaces, types, schemas, pure-function modules).
+
+In **Hybrid Mode** (the default), Process-CMB drives the overall task and Code-CMB applies inside any step whose deliverable is code. The two layers are linked by the `code_bones` field on a Process-Bone (see [Bone Schema](#bone-schema) below).
+
 ## Table of Contents
 1. [Core Concepts](#core-concepts)
 2. [Bone Schema](#bone-schema)
@@ -52,6 +59,37 @@ Input bones (`input.json`) follow the same structure, plus:
   "<user_input_fields>": "..."
 }
 ```
+
+### Optional `code_bones` field (Code Mode / Hybrid Mode)
+
+When a step produces or modifies *source-level* contracts (interfaces, types, schemas, pure-function modules, exported constants), record them in the step's `output.json` under `code_bones` via:
+
+```bash
+run_step.py bind-code <step_id> --files <f1,f2,...> [--symbols <s1,s2,...>] [--note <text>]
+```
+
+Resulting shape (appended on every call so multiple registrations accumulate):
+
+```json
+{
+  "code_bones": [
+    {
+      "registered_at": "<ISO8601 timestamp>",
+      "note": "Interface-first contract for auth module",
+      "items": [
+        {
+          "path": "src/auth/types.py",
+          "exists": true,
+          "hash": "9e26bf369911",
+          "symbols": ["AuthToken", "LoginRequest"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Downstream steps read this field to detect contract drift (a changed `hash` for a file marked as a Code-Bone is a contract change and triggers the "Bone as Contract" rule). See [cmb-code-mode.md](cmb-code-mode.md).
 
 ---
 
@@ -176,9 +214,10 @@ Before planning steps, the agent must resolve all ambiguities. Use this pattern:
 `plan.json` structure:
 ```json
 {
-  "version": "1.0",
+  "version": "1.1",
   "task": "...",
   "description": "...",
+  "mode": "process | code | hybrid",
   "created_at": "...",
   "status": "planning | running | done",
   "steps": [
@@ -192,3 +231,5 @@ Before planning steps, the agent must resolve all ambiguities. Use this pattern:
   ]
 }
 ```
+
+The `mode` field records which CMB scenario applies to the task. It is set by `init_cmb.py --mode {process,code,hybrid}` (default `hybrid`). Existing plans without `mode` are treated as `process`.
